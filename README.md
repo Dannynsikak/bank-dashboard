@@ -28,4 +28,4 @@ The Bank Management App is a web application built with React that allows users 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/bank-management-app.git
+  git@github.com:Dannynsikak/bank-dashboard.git
