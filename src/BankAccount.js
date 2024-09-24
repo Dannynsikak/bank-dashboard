@@ -1,33 +1,57 @@
-// src/BankAccount.js
-import { getUserAccount, updateUserAccount } from "./lib/firebaseconfig";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore"; // Adjust imports for your Firebase version
 
 class BankAccount {
-  constructor() {
-    this.balance = 0;
+  constructor(uid) {
+    this.uid = uid;
+    this.db = getFirestore(); // Initialize Firestore
+    this.accountRef = doc(this.db, "user", this.uid); // Reference to user's document
   }
 
   async loadAccount() {
-    const account = await getUserAccount();
-    if (account) {
-      this.balance = account.accountBalance || 0;
+    const docSnap = await getDoc(this.accountRef);
+    if (docSnap.exists()) {
+      this.accountData = docSnap.data();
+      console.log("Account data loaded:", this.accountData);
+    } else {
+      console.error("No such document!");
     }
   }
 
   async deposit(amount) {
-    if (amount <= 0) throw new Error("Deposit amount must be positive");
-    this.balance += amount;
-    await updateUserAccount({ accountBalance: this.balance });
+    if (this.accountData && this.accountData.accountBalance !== undefined) {
+      const newBalance = this.accountData.accountBalance + amount;
+      await setDoc(
+        this.accountRef,
+        { accountBalance: newBalance },
+        { merge: true }
+      );
+      console.log(`Deposit successful. New balance: $${newBalance}`);
+      this.accountData.accountBalance = newBalance; // Update local account balance
+    } else {
+      throw new Error("Account data is not loaded or invalid.");
+    }
   }
 
   async withdraw(amount) {
-    if (amount <= 0) throw new Error("Withdrawal amount must be positive");
-    if (amount > this.balance) throw new Error("Insufficient funds");
-    this.balance -= amount;
-    await updateUserAccount({ accountBalance: this.balance });
+    if (this.accountData && this.accountData.accountBalance !== undefined) {
+      if (this.accountData.accountBalance < amount) {
+        throw new Error("Insufficient funds.");
+      }
+      const newBalance = this.accountData.accountBalance - amount;
+      await setDoc(
+        this.accountRef,
+        { accountBalance: newBalance },
+        { merge: true }
+      );
+      console.log(`Withdrawal successful. New balance: $${newBalance}`);
+      this.accountData.accountBalance = newBalance; // Update local account balance
+    } else {
+      throw new Error("Account data is not loaded or invalid.");
+    }
   }
 
   checkBalance() {
-    return this.balance;
+    return this.accountData ? this.accountData.accountBalance : 0;
   }
 }
 

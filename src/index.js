@@ -8,6 +8,8 @@ import DashboardScreen from "./screens/DashboardScreen";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import PrivateRoute from "./components/PrivateRoute";
+import { UserProvider } from "./components/UserContext";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -30,7 +32,11 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <UserProvider>
+      {" "}
+      {/* Wrap the app with AuthProvider */}
+      <RouterProvider router={router} />
+    </UserProvider>
   </React.StrictMode>
 );
 

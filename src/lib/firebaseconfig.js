@@ -22,12 +22,16 @@ export const db = getFirestore(app); // Initialize Firestore
 
 // Firestore service functions
 export const getUserAccount = async (uid) => {
-  const userDoc = doc(db, "users", uid);
+  console.log("fetching user account with UID:", uid);
+  const userDoc = doc(db, "user", uid);
   const userData = await getDoc(userDoc);
+  console.log("User data exists:", userData.exists());
   return userData.exists() ? userData.data() : null;
 };
 
 export const updateUserAccount = async (uid, accountData) => {
-  const userDoc = doc(db, "users", uid);
+  console.log("Updating user account with UID:", uid);
+  const userDoc = doc(db, "user", uid);
   await setDoc(userDoc, accountData, { merge: true });
+  console.log("Updated user account:", accountData);
 };
